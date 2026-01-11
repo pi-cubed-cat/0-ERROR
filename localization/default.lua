@@ -1,5 +1,14 @@
 local loc_stuff = {
   descriptions = {
+    Back = {
+      b_zero_bejeweled = {
+        name = "Bejeweled Deck",
+        text = {
+          "Make poker hands with",
+          "{C:attention}match 3{}",
+        }
+      },
+    },
     Edition = {
       e_zero_gala = {
         name = "Gala",
@@ -1628,6 +1637,13 @@ local loc_stuff = {
 	},
 	labels = {
 		zero_gala = "Gala",
+    zero_redjewel = 'Red Gem',
+    zero_orangejewel = 'Orange Gem',
+    zero_yellowjewel = 'Yellow Gem',
+    zero_greenjewel = 'Green Gem',
+    zero_bluejewel = 'Blue Gem',
+    zero_violetjewel = 'Violet Gem',
+    zero_whitejewel = 'White Gem',
 	},
   }
 }
