@@ -107,7 +107,7 @@ SMODS.calculate_context({setting_blind = true, blind = G.GAME.round_resets.blind
 '''
 position = "after"
 payload = '''
-if G.GAME.selected_back.name == 'b_zero_bejeweled' then
+if do_bejewelatro() then
     Bejewelatro.f.board_raise()
     Bejewelatro.show = true
 end
@@ -123,7 +123,7 @@ G.STATE = G.STATES.ROUND_EVAL
 '''
 position = "after"
 payload = '''
-if G.GAME.selected_back.name == 'b_zero_bejeweled' then
+if do_bejewelatro() then
     Bejewelatro.f.board_drop()
     Bejewelatro.show = false
 end

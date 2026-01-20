@@ -896,7 +896,125 @@ local loc_stuff = {
 			"all {C:attention}Jokers{} give {C:white,X:chips}X#1#{} Chips,",
 			"{E:2,C:red}self destructs{} in {C:attention}#2#{} rounds",
 			"{C:inactive}(#3#ctive!)"
-			
+        }
+      },
+    j_zero_gemjimbo = {
+        name = "Gem Jimbo",
+        text = {
+            "{C:mult}+#1#{} Mult if played hand",
+            "contains a {C:attention}Gem{} card",
+        },
+      },
+    j_zero_gemred = {
+        name = "Lustrous Joker",
+        text = {
+            "Played cards with",
+            "a {C:red}Red{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemorange = {
+        name = "Topaz Joker",
+        text = {
+            "Played cards with",
+            "an {C:attention}Orange{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemyellow = {
+        name = "Amber Joker",
+        text = {
+            "Played cards with",
+            "a {C:gold}Yellow{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemgreen = {
+        name = "Emerald Joker",
+        text = {
+            "Played cards with",
+            "a {C:green}Green{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemblue = {
+        name = "Sapphire Joker",
+        text = {
+            "Played cards with",
+            "a {C:blue}Blue{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemviolet = {
+        name = "Amethyst Joker",
+        text = {
+            "Played cards with",
+            "a {C:tarot}Purple{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gemwhite = {
+        name = "Pearly Joker",
+        text = {
+            "Played cards with",
+            "a {C:inactive}White{} Gem give",
+            "{C:mult}+#1#{} Mult when scored",
+        },
+      },
+    j_zero_gempair = {
+        name = "Gem Jolly Joker",
+        text = {
+            "{C:red}+#1#{} Mult if played",
+            "hand contains",
+            "a {C:attention}#2#",
+        },
+      },
+    j_zero_gemspectrum = {
+        name = "Gem Crazy Joker",
+        text = {
+            "{C:red}+#1#{} Mult if played",
+            "hand contains",
+            "a {C:attention}#2#",
+        },
+      },
+    j_zero_gemtwopair = {
+        name = "Gem Mad Joker",
+        text = {
+            "{C:red}+#1#{} Mult if played",
+            "hand contains",
+            "a {C:attention}#2#",
+        },
+      },
+    j_zero_gemthree = {
+        name = "Gem Zany Joker",
+        text = {
+            "{C:red}+#1#{} Mult if played",
+            "hand contains",
+            "a {C:attention}#2#",
+        },
+      },
+    j_zero_gemhouse = {
+        name = "Gem Silly Joker",
+        text = {
+            "{C:red}+#1#{} Mult and {C:chips}+#2#{} Chips",
+            "if played hand contains",
+            "a {C:attention}#3#",
+        },
+      },
+    j_zero_gemfour = {
+        name = "Gem Nutty Joker",
+        text = {
+            "{C:red}+#1#{} Mult and {C:chips}+#2#{} Chips",
+            "if played hand contains",
+            "a {C:attention}#3#",
+        },
+      },
+    j_zero_gemflush = {
+        name = "Gem Crazy Joker",
+        text = {
+            "{C:red}+#1#{} Mult and {C:chips}+#2#{} Chips",
+            "if played hand contains",
+            "a {C:attention}#3#",
         },
       },
     },

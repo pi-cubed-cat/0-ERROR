@@ -14,7 +14,7 @@ function Bejewelatro.f.drawBG()
 end
 
 function Bejewelatro.f.board_raise()
-    if G.GAME.selected_back.name == 'b_zero_bejeweled' then
+    if do_bejewelatro() then
         Bejewelatro.board_visible = true
         Bejewelatro.f.create_jewels_board()
         Bejewelatro.board_pos.y = 20
@@ -30,7 +30,7 @@ function Bejewelatro.f.board_raise()
 end
 
 function Bejewelatro.f.board_drop()
-    if G.GAME.selected_back.name == 'b_zero_bejeweled' then
+    if do_bejewelatro() then
         Bejewelatro.board_pos.y = 2.5
         G.E_MANAGER:add_event(Event({
             trigger = "ease",

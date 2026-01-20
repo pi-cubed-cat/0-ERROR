@@ -69,8 +69,10 @@ function get_X_same_jewel(num, hand, or_more)
             end
         end
 
+        local num_x_sames = 0
         for _, jwl in pairs(jewel_list) do
             if (or_more and colours_count[jwl] >= num) or (colours_count[jwl] == num) then
+                num_x_sames = num_x_sames + 1
                 for __, card in ipairs(hand) do
                     if card.ability['zero_'..jwl] then
                         eligible_cards[#eligible_cards + 1] = card
@@ -78,9 +80,11 @@ function get_X_same_jewel(num, hand, or_more)
                 end
             end
         end 
+        
         if #eligible_cards > 0 then
-            return {eligible_cards}
+            return {eligible_cards}, num_x_sames
         end
+        return {}, 0
     end
 end
 
@@ -137,28 +141,28 @@ end
 --[[SMODS.PokerHandPart{ -- Gem Pair Framework
     key = 'jewel_2',
     func = function(hand)
-        get_X_same_jewel(2, hand)
+        get_X_same_jewel(2, hand, true)
     end
 }
 
 SMODS.PokerHandPart{ -- Gem 3OAK Framework
     key = 'jewel_3',
     func = function(hand)
-        get_X_same_jewel(3, hand)
+        get_X_same_jewel(3, hand, true)
     end
 }
 
 SMODS.PokerHandPart{ -- Gem 4OAK Framework
     key = 'jewel_4',
     func = function(hand)
-        get_X_same_jewel(4, hand)
+        get_X_same_jewel(4, hand, true)
     end
 }
 
 SMODS.PokerHandPart{ -- Gem Flush (5OAK) Framework
     key = 'jewel_5',
     func = function(hand)
-        get_X_same_jewel(5, hand)
+        get_X_same_jewel(5, hand, true)
     end
 }]]
 
@@ -183,9 +187,9 @@ SMODS.PokerHand { -- Gem Flush
         { '', true, jewel = { zero_redjewel = true } }
     },
     order_offset = 100009,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        return get_X_same_jewel(5, hand)
+        return get_X_same_jewel(5, hand, true)
         --return parts.zero_jewel_5
     end,
     modify_display_text = function(self, cards, scoring_hand)
@@ -214,9 +218,9 @@ SMODS.PokerHand { -- Gem Four
         { '', false, jewel = { zero_violetjewel = true } }
     },
     order_offset = 100008,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        return get_X_same_jewel(4, hand)
+        return get_X_same_jewel(4, hand, true)
         --return parts.zero_jewel_4
     end,
     modify_display_text = function(self, cards, scoring_hand)
@@ -245,10 +249,13 @@ SMODS.PokerHand { -- Gem House
         { '', true, jewel = { zero_bluejewel = true } }
     },
     order_offset = 100007,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        --if #parts.zero_jewel_3 < 1 or #parts.zero_jewel_2 < 2 then return {} end
-        --return SMODS.merge_lists(parts.zero_jewel_2)
+        local ret1, tri_count = get_X_same_jewel(3, hand, true)
+        local ret2, pair_count = get_X_same_jewel(2, hand, true)
+        if tri_count and tri_count >= 1 and pair_count and pair_count >= 2 then
+            return get_X_same_jewel(2, hand, true)
+        end
     end,
     modify_display_text = function(self, cards, scoring_hand)
         return jewel_house
@@ -276,9 +283,9 @@ SMODS.PokerHand { -- Gem Three
         { '', false, jewel = { zero_whitejewel = true } }
     },
     order_offset = 100006,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        return get_X_same_jewel(3, hand)
+        return get_X_same_jewel(3, hand, true)
         --return parts.zero_jewel_3
     end,
     modify_display_text = function(self, cards, scoring_hand)
@@ -307,10 +314,12 @@ SMODS.PokerHand { -- Gem Two Pair
         { '', false, jewel = { zero_yellowjewel = true } }
     },
     order_offset = 100005,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        --if #parts.zero_jewel_2 < 2 then return {} end
-        --return SMODS.merge_lists(parts.zero_jewel_2)
+        local ret, pair_count = get_X_same_jewel(2, hand, true)
+        if pair_count and pair_count >= 2 then
+            return get_X_same_jewel(2, hand, true)
+        end
     end,
     modify_display_text = function(self, cards, scoring_hand)
         return jewel_twopair
@@ -338,7 +347,7 @@ SMODS.PokerHand { -- Gem Spectrum
         { '', true, jewel = { zero_bluejewel = true } }
     },
     order_offset = 100004,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
         return get_spectrum_jewels(hand)
     end,
@@ -368,12 +377,171 @@ SMODS.PokerHand { -- Gem Pair
         { '', false, jewel = { zero_bluejewel = true } }
     },
     order_offset = 100003,
-    visible = not not (G.GAME and G.GAME.selected_back.name == 'b_zero_bejeweled'),
+    visible = do_bejewelatro(),
     evaluate = function(parts, hand)
-        return get_X_same_jewel(2, hand)
+        return get_X_same_jewel(2, hand, true)
         --return parts.zero_jewel_2
     end,
     modify_display_text = function(self, cards, scoring_hand)
         return jewel_pair
     end,
 }
+
+
+-- Pair
+SMODS.PokerHand:take_ownership ('Pair',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._2
+        else
+            return get_X_same_jewel(2, hand, true) or parts._2
+        end
+    end
+})
+
+-- Two Pair
+SMODS.PokerHand:take_ownership ('Two Pair',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            if #parts._2 < 2 then return {} end
+            return parts._all_pairs
+        else
+            local ret, pair_count = get_X_same_jewel(2, hand, true)
+            if pair_count and pair_count >= 2 then
+                return get_X_same_jewel(2, hand, true)
+            else
+                if #parts._2 < 2 then return {} end
+                return parts._all_pairs
+            end
+        end
+    end
+})
+
+-- Three of a Kind
+SMODS.PokerHand:take_ownership ('Three of a Kind',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._3
+        else
+            return get_X_same_jewel(3, hand, true) or parts._3
+        end
+    end
+})
+
+-- Straight
+SMODS.PokerHand:take_ownership ('Straight',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._straight
+        else
+            return get_spectrum_jewels(hand) or parts._straight
+        end
+    end
+})
+
+-- Flush
+SMODS.PokerHand:take_ownership ('Flush',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._flush
+        else
+            return get_X_same_jewel(5, hand, true) or parts._flush
+        end
+    end
+})
+
+-- Full House
+SMODS.PokerHand:take_ownership ('Full House',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            if #parts._3 < 1 or #parts._2 < 2 then return {} end
+            return parts._all_pairs
+        else
+            local ret1, tri_count = get_X_same_jewel(3, hand, true)
+            local ret2, pair_count = get_X_same_jewel(2, hand, true)
+            if tri_count and tri_count >= 1 and pair_count and pair_count >= 2 then
+                return get_X_same_jewel(2, hand, true)
+            else
+                if #parts._3 < 1 or #parts._2 < 2 then return {} end
+                return parts._all_pairs
+            end
+        end
+    end
+})
+
+-- Four of a Kind
+SMODS.PokerHand:take_ownership ('Four of a Kind',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._4
+        else
+            return get_X_same_jewel(4, hand, true) or parts._4
+        end
+    end
+})
+
+-- Straight Flush (wip)
+--[[SMODS.PokerHand:take_ownership ('Straight Flush',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            if not next(parts._straight) or not next(parts._flush) then return end
+            return { SMODS.merge_lists(parts._straight, parts._flush) }
+        else
+            if next(parts._straight) and get_X_same_jewel(5, hand, true) then
+                return { SMODS.merge_lists(parts._straight, get_X_same_jewel(5, hand, true)) }
+            elseif not next(parts._straight) or not next(parts._flush) then return end
+            return { SMODS.merge_lists(parts._straight, parts._flush) }
+        end
+    end
+})]]
+
+-- Five of a Kind
+SMODS.PokerHand:take_ownership ('Five of a Kind',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            return parts._5
+        else
+            return get_X_same_jewel(5, hand, true) or parts._5
+        end
+    end
+})
+
+-- Flush House (wip)
+--[[SMODS.PokerHand:take_ownership ('Flush House',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            if #parts._3 < 1 or #parts._2 < 2 or not next(parts._flush) then return {} end
+            return { SMODS.merge_lists(parts._all_pairs, parts._flush) }
+        else
+            if #parts._3 < 1 or #parts._2 < 2 or not next(parts._flush) then return {} end
+            return { SMODS.merge_lists(parts._all_pairs, parts._flush) }
+        end
+    end
+})]]
+
+-- Flush Five
+SMODS.PokerHand:take_ownership ('Five of a Kind',{
+    evaluate = function(parts, hand)
+        if not do_bejewelatro() then
+            if not next(parts._5) or not next(parts._flush) then return {} end
+            return { SMODS.merge_lists(parts._5, parts._flush) }
+        else
+            if get_X_same_jewel(5, hand, true) then return get_X_same_jewel(5, hand, true) end
+            if not next(parts._5) or not next(parts._flush) then return {} end
+            return { SMODS.merge_lists(parts._5, parts._flush) }
+        end
+    end
+})
+
+-- Spectrum (Paperback)
+if SMODS.PokerHands['paperback_Spectrum'] then
+    SMODS.PokerHand:take_ownership ('Spectrum',{
+        evaluate = function(parts, hand)
+            if not do_bejewelatro() then
+                return parts.paperback_spectrum
+            else
+                return get_spectrum_jewels(hand) or parts.paperback_spectrum
+            end
+        end
+    })
+end
