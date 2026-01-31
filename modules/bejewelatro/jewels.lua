@@ -45,7 +45,7 @@ for i = 1, #jewel_list do
 end
 
 -- create row of jewels
-function Bejewelatro.f.create_row(row_num)
+function Bejewelatro.f.create_row(row_num, empty)
     Bejewelatro.jewel_rows[row_num] = CardArea(
         0, 0,
         9.5, -- width
@@ -53,42 +53,48 @@ function Bejewelatro.f.create_row(row_num)
         {
             type = 'title_2',
             offset = {
-                x = Bejewelatro.board_pos.x,
+                x = Bejewelatro.board_pos.x - 0,
                 y = Bejewelatro.board_pos.y - 2.5,
             },
-            major = G.ROOM_ATTACH, bond = 'weak',
+            major = Bejewelatro.BG, bond = 'weak',
         }
     )
     Bejewelatro.jewel_rows[row_num].CT.x = 4.38 -- horizontal pos
     Bejewelatro.jewel_rows[row_num].CT.y = 2.65 + (row_num-1)*1.07 -- vertical pos
 
-    for i = 1,8 do
-        local card_jewel = SMODS.create_card({
-            set = 'jewel', 
-            --key = 'c_zero_redjewel',
-            key = 'c_zero_'..pseudorandom_element(jewel_list),
-            skip_materialize = true,
-        })
-        Bejewelatro.jewel_rows[row_num]:emplace(card_jewel)
-        card_jewel.position = {x = i, y = row_num}
+    if not empty then
+        for i = 1,8 do
+            local card_jewel = SMODS.create_card({
+                set = 'jewel', 
+                --key = 'c_zero_redjewel',
+                key = 'c_zero_'..pseudorandom_element(jewel_list),
+                skip_materialize = true,
+            })
+            Bejewelatro.jewel_rows[row_num]:emplace(card_jewel)
+            card_jewel.position = {x = i, y = row_num}
+        end
     end
 end
 
 -- fill the board with jewels
-function Bejewelatro.f.create_jewels_board()
+function Bejewelatro.f.create_jewels_board(empty)
     for i = 1,8 do
-        Bejewelatro.f.create_row(i)
+        Bejewelatro.f.create_row(i, empty)
     end
-    Bejewelatro.f.jewel_refill(true)
+    if not empty then
+        Bejewelatro.f.jewel_refill(true)
+    end
 end
 
 -- destroy all jewels
-function Bejewelatro.f.destroy_jewels_board()
+function Bejewelatro.f.destroy_jewels_board(jewels_only)
     for i = 1,8 do
         for j=8,1,-1 do
             Bejewelatro.jewel_rows[i].cards[j]:remove()
         end
-        Bejewelatro.jewel_rows[i] = nil
+        if not jewels_only then
+            Bejewelatro.jewel_rows[i] = nil
+        end
     end
 end
 
@@ -185,35 +191,79 @@ function Bejewelatro.f.jewel_drag(card1, card2)
     }))
 end
 
+-- CARD DRAGGING 
+local mouse_x, mouse_y = nil, nil
+local mouse_dx, mouse_dy = 0, 0
+local tracked_card = nil
+local gamescale = G.TILESCALE*G.TILESIZE
+local req_dist = 0.75
+
+-- hooks update to determine the mouse cursor's change in position after clicking a jewel
+local ref = love.update
+function love.update(dt)
+    ref(dt)
+    if tracked_card and mouse_x then
+        mouse_dx = (love.mouse.getX() - mouse_x)/gamescale
+        mouse_dy = (love.mouse.getY() - mouse_y)/gamescale
+    end
+    if tracked_card and not (tracked_card and tracked_card.states.drag.is) then
+        mouse_x, mouse_y = nil, nil
+        tracked_card = nil
+    end
+end
+
 -- hooks card dragging - calls functions when moved too far
 local drag_ref = Moveable.drag
 function Moveable:drag(offset)
     if self and self.ability and self.ability.set == 'jewel' then
         if self.getting_destroyed then return end
-        local delta_x = G.CURSOR.T.x - 2 - self.T.x
-        local delta_y = G.CURSOR.T.y - 1.1 - self.T.y
-        local req_dist = 0.75
+        if not tracked_card then
+            tracked_card = self
+            mouse_x, mouse_y = love.mouse.getPosition()
+            mouse_dx = 0
+            mouse_dy = 0
+        end
         local row = Bejewelatro.jewel_rows[self.position.y]
-        if math.abs(delta_y) < req_dist then
-            if delta_x > req_dist and self.position.x < 8 then -- when a jewel is dragged right
+        if math.abs(mouse_dy) < req_dist then
+            if mouse_dx > req_dist and self.position.x < 8 then -- when a jewel is dragged right
                 local other_jewel = row.cards[self.position.x + 1]
                 Bejewelatro.f.jewel_drag(self, other_jewel)
-            elseif delta_x < -req_dist and self.position.x > 1 then -- when a jewel is dragged left
+            elseif mouse_dx < -req_dist and self.position.x > 1 then -- when a jewel is dragged left
                 local other_jewel = row.cards[self.position.x - 1]
                 Bejewelatro.f.jewel_drag(self, other_jewel)
             end
         end
-        if math.abs(delta_x) < req_dist then
-            if delta_y > req_dist and self.position.y < 8 then -- when a jewel is dragged down
+        if math.abs(mouse_dx) < req_dist then
+            if mouse_dy > req_dist and self.position.y < 8 then -- when a jewel is dragged down
                 local other_jewel = Bejewelatro.jewel_rows[self.position.y + 1].cards[self.position.x]
                 Bejewelatro.f.jewel_drag(self, other_jewel)
-            elseif delta_y < -req_dist and self.position.y > 1 then -- when a jewel is dragged up
+            elseif mouse_dy < -req_dist and self.position.y > 1 then -- when a jewel is dragged up
                 local other_jewel = Bejewelatro.jewel_rows[self.position.y - 1].cards[self.position.x]
                 Bejewelatro.f.jewel_drag(self, other_jewel)
             end
         end
-        if math.abs(delta_x) > req_dist and math.abs(delta_y) > req_dist then
-            G.CONTROLLER:L_cursor_release()
+        if not SMODS.find_card('j_zero_hypotenusejoker') then
+            if math.abs(mouse_dx) > req_dist and math.abs(mouse_dy) > req_dist then -- when a jewel is dragged too far diagonally
+                G.CONTROLLER:L_cursor_release()
+            end
+        elseif math.abs(mouse_dx) < req_dist and math.abs(mouse_dy) < req_dist then
+            if mouse_dy > req_dist/2 and mouse_dx > req_dist/2 and self.position.x < 8 and self.position.y < 8 then
+                -- when a jewel is dragged down-right
+                local other_jewel = Bejewelatro.jewel_rows[self.position.y + 1].cards[self.position.x + 1]
+                Bejewelatro.f.jewel_drag(self, other_jewel)
+            elseif mouse_dy > req_dist/2 and mouse_dx < -req_dist/2 and self.position.x > 1 and self.position.y < 8 then
+                -- when a jewel is dragged down-left
+                local other_jewel = Bejewelatro.jewel_rows[self.position.y + 1].cards[self.position.x - 1]
+                Bejewelatro.f.jewel_drag(self, other_jewel)
+            elseif mouse_dy < -req_dist/2 and mouse_dx > req_dist/2 and self.position.x < 8 and self.position.y > 1 then
+                -- when a jewel is dragged up-right
+                local other_jewel = Bejewelatro.jewel_rows[self.position.y - 1].cards[self.position.x + 1]
+                Bejewelatro.f.jewel_drag(self, other_jewel)
+            elseif mouse_dy < -req_dist/2 and mouse_dx < -req_dist/2 and self.position.x > 1 and self.position.y > 1 then
+                -- when a jewel is dragged up-left
+                local other_jewel = Bejewelatro.jewel_rows[self.position.y - 1].cards[self.position.x - 1]
+                Bejewelatro.f.jewel_drag(self, other_jewel)
+            end
         end
     else
         drag_ref(self, offset)
@@ -381,6 +431,7 @@ function Bejewelatro.f.jewel_refill(initial) -- drop jewels downward after other
             return true 
         end)
     }))
+    save_run()
     G.E_MANAGER:add_event(Event({
         trigger = 'after',
         blockable = false,
@@ -428,4 +479,18 @@ function Bejewelatro.f.check_line(get_jewel)
     end
 
     return valid_move, flush_colours
+end
+
+local save_run_ref = save_run -- Hooks saving to save the state of all jewels
+function save_run()
+    if Bejewelatro.jewel_rows[1] and Bejewelatro.jewel_rows[1].cards[1] then
+        G.GAME.Bejewelatro_jewels = {}
+        for row = 1,8 do
+            G.GAME.Bejewelatro_jewels[row] = {}
+            for jwl = 1,8 do
+                G.GAME.Bejewelatro_jewels[row][jwl] = Bejewelatro.jewel_rows[row].cards[jwl].config.center.key
+            end
+        end
+    end
+    save_run_ref()
 end

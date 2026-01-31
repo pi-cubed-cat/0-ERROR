@@ -949,7 +949,7 @@ local loc_stuff = {
         name = "Amethyst Joker",
         text = {
             "Played cards with",
-            "a {C:tarot}Purple{} Gem give",
+            "a {C:tarot}Violet{} Gem give",
             "{C:mult}+#1#{} Mult when scored",
         },
       },
@@ -1015,6 +1015,14 @@ local loc_stuff = {
             "{C:red}+#1#{} Mult and {C:chips}+#2#{} Chips",
             "if played hand contains",
             "a {C:attention}#3#",
+        },
+      },
+    j_zero_hypotenusejoker = {
+        name = "Hypotenuse Joker",
+        text = {
+          "{s:0.8,C:inactive}(temp art obv)",  
+          "Gems can make moves",
+          "{C:attention}diagonally{} on the board",
         },
       },
     },

@@ -353,7 +353,7 @@ SMODS.Joker {
     blueprint_compat = true,
     cost = 5,
     discovered = true,
-    config = { extra = { mult = 24, chips = 120, type = 'zero_jewel_flush' }, },
+    config = { extra = { mult = 28, chips = 150, type = 'zero_jewel_flush' }, },
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult, card.ability.extra.chips, localize(card.ability.extra.type, 'poker_hands') } }
     end,
@@ -365,4 +365,15 @@ SMODS.Joker {
             }
         end
     end
+}
+
+-- Hypotenuse Joker
+SMODS.Joker {
+    key = "hypotenusejoker",
+    atlas = "zero_jokersBejeweled",
+    pos = { x = 0, y = 0 },
+    rarity = 1,
+    blueprint_compat = false,
+    cost = 5,
+    discovered = true,
 }

@@ -13,10 +13,10 @@ function Bejewelatro.f.drawBG()
     Bejewelatro.BG:recalculate()
 end
 
-function Bejewelatro.f.board_raise()
+function Bejewelatro.f.board_raise(empty)
     if do_bejewelatro() then
         Bejewelatro.board_visible = true
-        Bejewelatro.f.create_jewels_board()
+        Bejewelatro.f.create_jewels_board(empty)
         Bejewelatro.board_pos.y = 20
         G.E_MANAGER:add_event(Event({
             trigger = "ease",
@@ -58,8 +58,53 @@ function Bejewelatro.f.update_bg(dt)
 end
 
 -- remove the bg when starting run (removes bg from other decks)
+--[[local start_run_ref = Game.start_run
+function Game:start_run(args)
+    start_run_ref(self, args)
+    if args.savetext and G.STATE (not do_bejewelatro()) 
+    Bejewelatro.board_visible = false
+end]]
+
+local play_cards_from_highlighted_ref = G.FUNCS.play_cards_from_highlighted
+function G.FUNCS.play_cards_from_highlighted(e)
+    G.E_MANAGER:add_event(Event({
+        trigger = "ease",
+        ease = 'quad',
+        delay = 1,
+        ref_table = Bejewelatro.board_pos,
+        ref_value = "y",
+        ease_to = 9,
+    }))
+    play_cards_from_highlighted_ref(e)
+end
+
+local draw_from_play_to_discard_ref = G.FUNCS.draw_from_play_to_discard
+function G.FUNCS.draw_from_play_to_discard(e)
+    G.E_MANAGER:add_event(Event({
+        trigger = "before",
+        func = function()
+            draw_from_play_to_discard_ref(e)
+            return true
+        end
+    }))
+    G.E_MANAGER:add_event(Event({
+        trigger = "after",
+        func = function()
+            G.E_MANAGER:add_event(Event({
+                trigger = "ease",
+                ease = 'quad',
+                delay = 1,
+                ref_table = Bejewelatro.board_pos,
+                ref_value = "y",
+                ease_to = 2.5,
+            }))
+            return true
+        end
+    }))
+end
+
 local start_run_ref = Game.start_run
 function Game:start_run(args)
     start_run_ref(self, args)
-    Bejewelatro.board_visible = false
+    if G.STATE == G.STATES.SELECTING_HAND and do_bejewelatro() then Bejewelatro.board_visible = true end
 end

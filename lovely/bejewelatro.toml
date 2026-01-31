@@ -74,6 +74,24 @@ end
 match_indent = true
 overwrite = false
 
+# allow the jewels to dynamically move
+[[patches]]
+[patches.pattern]
+target = "cardarea.lua"
+position = "at"
+pattern = '''
+card.T.y = self.T.y + self.T.h/2 - card.T.h/2 - highlight_height+ (G.SETTINGS.reduced_motion and 0 or 1)*0.03*math.sin(0.666*G.TIMERS.REAL+card.T.x)
+'''
+payload = """
+if card and card.ability and card.ability.set == 'jewel' then
+    card.T.y = Bejewelatro.board_pos.y - 2.5 + self.T.y + self.T.h/2 - card.T.h/2 - highlight_height+ (G.SETTINGS.reduced_motion and 0 or 1)*0.03*math.sin(0.666*G.TIMERS.REAL+card.T.x)
+else
+    card.T.y = self.T.y + self.T.h/2 - card.T.h/2 - highlight_height+ (G.SETTINGS.reduced_motion and 0 or 1)*0.03*math.sin(0.666*G.TIMERS.REAL+card.T.x)
+end
+"""
+match_indent = true
+overwrite = false
+
 # move play & discard buttons
 [[patches]]
 [patches.pattern]
@@ -314,5 +332,55 @@ payload = '''
         end
         Bejewelatro.f.jewel_refill(true)
     end
+'''
+match_indent = true
+
+# loads board with jewels if there is a save
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = '''
+self.HUD:recalculate()
+
+G.E_MANAGER:add_event(Event({
+    trigger = 'immediate',
+    func = (function()
+        unlock_notify()
+        return true
+    end)
+  }))
+'''
+position = "after"
+payload = '''
+if G.STATE == G.STATES.SELECTING_HAND and do_bejewelatro() then
+    Bejewelatro.f.board_raise(true) -- creates an empty board
+    Bejewelatro.show = true
+    Bejewelatro.board_visible = true
+    --Bejewelatro.f.destroy_jewels_board(true)
+    if G.GAME.Bejewelatro_jewels then
+        for row = 1,8 do
+            for jwl = 1,8 do
+                if G.GAME.Bejewelatro_jewels[row] then
+                    local card_jewel = SMODS.create_card({
+                        set = 'jewel', 
+                        key = G.GAME.Bejewelatro_jewels[row][jwl],
+                        skip_materialize = true,
+                    })
+                    Bejewelatro.jewel_rows[row]:emplace(card_jewel)
+                    card_jewel.position = {x = jwl, y = row}
+                end
+            end
+        end
+    end
+    G.E_MANAGER:add_event(Event({
+        trigger = 'after',
+        blockable = false,
+        delay =  1,
+        func = (function() 
+            Bejewelatro.f.jewel_refill()
+            return true 
+        end)
+    }))
+end
 '''
 match_indent = true
